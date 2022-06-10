@@ -1,6 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import { Grid, Accordion, Api } from 'bootstrap';
+// import { Grid, Accordion, Api } from 'bootstrap';
 
-
-console.log("Hello World!");
+console.log('Hello World!');
