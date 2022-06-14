@@ -1,4 +1,4 @@
-import { path, __dirname } from 'path';
+import { path, dirname } from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -6,7 +6,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 const config = {
   entry: './src/index.js',
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(dirname, 'dist'),
   },
   devServer: {
     open: true,
