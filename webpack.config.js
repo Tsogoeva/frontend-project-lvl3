@@ -1,4 +1,4 @@
-import path from 'path';
+import { path, __dirname } from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 const isProduction = process.env.NODE_ENV === 'production';
