@@ -1,8 +1,10 @@
 import i18n from 'i18next';
+import * as yup from 'yup';
 import onChange from 'on-change';
 import _ from 'lodash';
 import render from './view.js';
 import validator from './validator.js';
+import resources from './locales/index.js';
 
 export default () => {
   const defaultLanguage = 'ru';
@@ -10,12 +12,22 @@ export default () => {
   i18nInstance.init({
     lng: defaultLanguage,
     debug: false,
-    /* resources, */
+    resources,
+  }).then(() => {
+    yup.setLocale({
+      string: {
+        url: () => ({ key: 'invalidURL' }),
+      },
+      mixed: {
+        notOneOf: () => ({ key: 'rssAlreadyAdded' }),
+      },
+    });
   });
 
   const state = onChange({
     form: {
       valid: true,
+      message: '',
       processState: 'filling',
       processError: null,
       errors: {},
@@ -23,6 +35,7 @@ export default () => {
     feeds: [
       { url: 'https://www.fontanka.ru/fontanka.rss', id: '1', postsId: '4' },
     ],
+    posts: [],
   }, render);
 
   const field = document.querySelector('#url-input');
