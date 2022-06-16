@@ -5,7 +5,7 @@ export default (data, feeds) => {
   const schema = yup.string().url().notOneOf(urls);
 
   try {
-    schema.validateSync(data);
+    schema.validate(data);
     return null;
   } catch (e) {
     return e.message;
