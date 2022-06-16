@@ -2,9 +2,25 @@ import i18n from 'i18next';
 import * as yup from 'yup';
 import onChange from 'on-change';
 import _ from 'lodash';
+import axios from 'axios';
 import render from './view.js';
-import validator from './validator.js';
 import resources from './locales/index.js';
+import parseRSS from './parser.js';
+
+const getProxy = (url) => {
+  const proxy = new URL('/get', 'https://allorigins.hexlet.app');
+  proxy.searchParams.set('url', url);
+  proxy.searchParams.set('disableCache', 'true');
+  return proxy.toString();
+};
+
+const validator = (link, feeds) => {
+  const urls = feeds.map(({ url }) => url);
+  return yup.string()
+    .url()
+    .notOneOf(urls)
+    .validate(link);
+};
 
 export default () => {
   const defaultLanguage = 'ru';
@@ -24,43 +40,48 @@ export default () => {
     });
   });
 
+  const elements = {
+    field: document.querySelector('#url-input'),
+    form: document.querySelector('form'),
+  };
+
   const state = onChange({
-    form: {
-      valid: true,
-      message: '',
-      processState: 'filling',
-      processError: null,
-      errors: {},
-    },
+    currentURL: '',
+    process: '', // receiving, received, update, fail, previewPost, readPost
+    message: '',
+    valid: null, // true, false
+    errors: {},
     feeds: [
       { url: 'https://www.fontanka.ru/fontanka.rss', id: '1', postsId: '4' },
     ],
     posts: [],
-  }, render);
+  }, render(elements, i18nInstance));
 
-  const field = document.querySelector('#url-input');
-  const form = document.querySelector('form');
-
-  form.addEventListener('submit', (e) => {
+  elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    const data = formData.get('url');
-    // console.log(data)
+    state.currentURL = formData.get('url');
 
-    const error = validator(data, state.feeds);
-    // console.log(error);
+    validator(state.currentURL, state.feeds)
+      .then(() => {
+        state.feeds.push(state.currentURL);
+        state.process = 'receiving';
+        axios.get(getProxy(state.currentURL));
+      })
+      .then((response) => parseRSS(response));
+
     // console.log(state);
 
-    if (!error) {
+    /* if (!error) {
       state.feeds.unshift({ url: data, id: _.uniqueId() });
-      state.form.valid = true;
+      state.valid = true;
       // console.log(state);
       form.reset();
       field.focus();
     } else {
-      state.form.valid = false;
-      state.form.errors = error;
+      state.valid = false;
+      state.errors = error;
       // console.log(state);
-    }
+    } */
   });
 };
