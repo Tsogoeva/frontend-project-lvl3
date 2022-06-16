@@ -10,8 +10,6 @@ export default (path, value) => {
         break;
       case true:
         input.classList.remove('is-invalid');
-        input.reset();
-        input.focus();
         break;
       default:
         break;
