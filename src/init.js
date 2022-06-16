@@ -25,25 +25,29 @@ export default () => {
     ],
   }, render);
 
-      //   const field = document.querySelector('#url-input');
-    const form = document.querySelector('form');
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const data = formData.get('url');
+  const field = document.querySelector('#url-input');
+  const form = document.querySelector('form');
 
-        const error = validator(data, state.feeds);
-        state.form.errors = error;
-        console.log(error);
-        console.log(state);
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = formData.get('url');
+    // console.log(data)
 
-        if (!error) {
-          state.feeds.unshift({ url: data, id: _.uniqueId() });
-          state.form.valid = true;
-          console.log(state.feeds);
-        } else {
-            state.form.valid = false;
-        }
-        
-      });
+    const error = validator(data, state.feeds);
+    // console.log(error);
+    // console.log(state);
+
+    if (!error) {
+      state.feeds.unshift({ url: data, id: _.uniqueId() });
+      state.form.valid = true;
+      // console.log(state);
+      form.reset();
+      field.focus();
+    } else {
+      state.form.valid = false;
+      state.form.errors = error;
+      // console.log(state);
+    }
+  });
 };
