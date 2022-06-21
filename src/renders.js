@@ -69,6 +69,9 @@ const makePost = (post, text) => {
 };
 
 export default (state, elements, i18nInstance) => {
+  elements.containerFeed.innerHTML = '';
+  elements.containerPosts.innerHTML = '';
+
   const feedBlock = buildBlock(i18nInstance.t('feeds'));
   elements.containerFeed.prepend(feedBlock);
 
@@ -84,6 +87,6 @@ export default (state, elements, i18nInstance) => {
   const currentPosts = state.posts.filter((post) => state.currentFeedId === post.feedId);
   currentPosts.forEach((post) => {
     const builtPost = makePost(post, i18nInstance.t('buttons.view'));
-    postsList.append(builtPost);
+    postsList.prepend(builtPost);
   });
 };
