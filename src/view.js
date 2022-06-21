@@ -21,9 +21,9 @@ export default (elements, state, i18nInstance) => onChange(state, (path, value) 
       renderData(state, elements, i18nInstance);
       break;
 
-      /* case 'updating':
+    case 'updating':
       renderData(state, elements, i18nInstance);
-      break; */
+      break;
 
     default:
       break;
