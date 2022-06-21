@@ -1,18 +1,14 @@
 import i18n from 'i18next';
 import * as yup from 'yup';
-import onChange from 'on-change';
-import _ from 'lodash';
+// import onChange from 'on-change';
+// import _ from 'lodash';
 import axios from 'axios';
 import render from './view.js';
 import resources from './locales/index.js';
 import parseRSS from './parser.js';
-
-const getProxy = (url) => {
-  const proxy = new URL('/get', 'https://allorigins.hexlet.app');
-  proxy.searchParams.set('url', url);
-  proxy.searchParams.set('disableCache', 'true');
-  return proxy.toString();
-};
+import { getFeedState, getPostState } from './processing.js';
+import getProxy from './proxyOfURL.js';
+import updatePosts from './updater.js';
 
 const validator = (link, feeds) => {
   const urls = feeds.map(({ url }) => url);
@@ -27,7 +23,7 @@ export default () => {
   const i18nInstance = i18n.createInstance();
   i18nInstance.init({
     lng: defaultLanguage,
-    debug: false,
+    debug: true,
     resources,
   }).then(() => {
     yup.setLocale({
@@ -43,19 +39,25 @@ export default () => {
   const elements = {
     field: document.querySelector('#url-input'),
     form: document.querySelector('form'),
+    feedback: document.querySelector('.feedback'),
+    containerFeed: document.querySelector('.feeds'),
+    containerPosts: document.querySelector('.posts'),
   };
 
-  const state = onChange({
+  // https://www.fontanka.ru/fontanka.rss
+
+  const state = {
     currentURL: '',
-    process: '', // receiving, received, update, fail, previewPost, readPost
+    currentFeedId: 0,
+    process: '', // receiving, received, update, failed, previewPost, readPost
     message: '',
-    valid: null, // true, false
+    // valid: null, // true, false
     errors: {},
-    feeds: [
-      { url: 'https://www.fontanka.ru/fontanka.rss', id: '1', postsId: '4' },
-    ],
+    feeds: [],
     posts: [],
-  }, render(elements, i18nInstance));
+  };
+
+  const watchedState = render(elements, state, i18nInstance);
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -64,24 +66,33 @@ export default () => {
 
     validator(state.currentURL, state.feeds)
       .then(() => {
-        state.feeds.push(state.currentURL);
-        state.process = 'receiving';
-        axios.get(getProxy(state.currentURL));
-      })
-      .then((response) => parseRSS(response));
+      // state.feeds.push(state.currentURL);
+      // watchedState.process = 'receiving';
+      // state.valid = true;
+        axios.get(getProxy(state.currentURL))
+          .then((response) => {
+            const data = parseRSS(response);
+            const feedState = getFeedState(state, data.feed);
+            state.currentFeedId = feedState.id;
+            state.feeds.push(feedState);
 
-    // console.log(state);
+            const postState = getPostState(state.currentFeedId, data.posts);
+            state.posts = state.posts.concat(postState);
 
-    /* if (!error) {
-      state.feeds.unshift({ url: data, id: _.uniqueId() });
-      state.valid = true;
-      // console.log(state);
-      form.reset();
-      field.focus();
-    } else {
-      state.valid = false;
-      state.errors = error;
-      // console.log(state);
-    } */
+            watchedState.process = 'received';
+            // console.log(state);
+          })
+          .catch((err) => {
+            state.message = err;
+            state.process = 'failed';
+            // console.log(state);
+          });
+      }).catch((error) => {
+        const [{ key }] = error.errors;
+        state.message = key;
+        // state.valid = false;
+        watchedState.process = 'failed';
+      });
   });
+  setTimeout(() => updatePosts(state), 5000);
 };
