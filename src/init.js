@@ -1,14 +1,14 @@
 import i18n from 'i18next';
 import * as yup from 'yup';
 // import onChange from 'on-change';
-// import _ from 'lodash';
+import _ from 'lodash';
 import axios from 'axios';
 import render from './view.js';
 import resources from './locales/index.js';
 import parseRSS from './parser.js';
 import { getFeedState, getPostState } from './processing.js';
 import getProxy from './proxyOfURL.js';
-import updatePosts from './updater.js';
+// import updatePosts from './updater.js';
 
 const validator = (link, feeds) => {
   const urls = feeds.map(({ url }) => url);
@@ -49,7 +49,7 @@ export default () => {
   const state = {
     currentURL: '',
     currentFeedId: 0,
-    process: '', // receiving, received, update, failed, previewPost, readPost
+    process: null, // receiving, received, update, failed, previewPost, readPost
     message: '',
     // valid: null, // true, false
     errors: {},
@@ -94,5 +94,24 @@ export default () => {
         watchedState.process = 'failed';
       });
   });
-  setTimeout(() => updatePosts(state), 5000);
+
+  const updatePosts = () => {
+    const { feeds, posts } = state;
+    const promises = feeds.map((feed) => axios.get(getProxy(feed.url))
+      .then((response) => {
+        const data = parseRSS(response);
+        const difference = _.differenceBy(data.posts, posts, 'link');
+        if (difference) {
+          const newPostState = getPostState(feed.id, difference);
+          state.posts = [...posts, ...newPostState];
+          watchedState.process = 'updating';
+          watchedState.process = null;
+        }
+      }));
+    Promise.all(promises)
+      .then(() => setTimeout(updatePosts, 5000));
+    console.log(state.posts.length);
+  };
+
+  setTimeout(() => updatePosts(), 5000);
 };
