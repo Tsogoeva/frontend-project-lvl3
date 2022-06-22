@@ -1,30 +1,25 @@
 import i18n from 'i18next';
 import * as yup from 'yup';
-// import onChange from 'on-change';
 import _ from 'lodash';
 import axios from 'axios';
 import render from './view.js';
-import resources from './locales/index.js';
+import ru from './locales/ru.js';
 import parseRSS from './parser.js';
-import { getFeedState, getPostState } from './processing.js';
+import { getPostState } from './processing.js';
 import getProxy from './proxyOfURL.js';
-// import updatePosts from './updater.js';
-
-const validator = (link, feeds) => {
-  const urls = feeds.map(({ url }) => url);
-  return yup.string()
-    .url()
-    .notOneOf(urls)
-    .validate(link);
-};
+import runHandlers from './handlers.js';
 
 export default () => {
   const defaultLanguage = 'ru';
+  const refreshInterval = 5000;
+
   const i18nInstance = i18n.createInstance();
   i18nInstance.init({
     lng: defaultLanguage,
     debug: true,
-    resources,
+    resources: {
+      ru,
+    },
   }).then(() => {
     yup.setLocale({
       string: {
@@ -42,58 +37,27 @@ export default () => {
     feedback: document.querySelector('.feedback'),
     containerFeed: document.querySelector('.feeds'),
     containerPosts: document.querySelector('.posts'),
+
+    modal: document.querySelector('#modal'),
+    modalTitle: document.body.querySelector('.modal-title'),
+    modalDescription: document.body.querySelector('.modal-body'),
+    modalLink: document.body.querySelector('.modal-footer > a'),
+    modalClosingButtons: document.querySelectorAll('[data-bs-dismiss="modal"]'),
   };
 
-  // https://www.fontanka.ru/fontanka.rss
-
   const state = {
+    process: null, // receiving, received, updating, failed, preview
+    message: '',
     currentURL: '',
     currentFeedId: 0,
-    process: null, // receiving, received, update, failed, previewPost, readPost
-    message: '',
-    // valid: null, // true, false
-    errors: {},
+    previewPost: '',
     feeds: [],
     posts: [],
   };
 
   const watchedState = render(elements, state, i18nInstance);
 
-  elements.form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    state.currentURL = formData.get('url');
-
-    validator(state.currentURL, state.feeds)
-      .then(() => {
-      // state.feeds.push(state.currentURL);
-      // watchedState.process = 'receiving';
-      // state.valid = true;
-        axios.get(getProxy(state.currentURL))
-          .then((response) => {
-            const data = parseRSS(response);
-            const feedState = getFeedState(state, data.feed);
-            state.currentFeedId = feedState.id;
-            state.feeds.push(feedState);
-
-            const postState = getPostState(state.currentFeedId, data.posts);
-            state.posts = state.posts.concat(postState);
-
-            watchedState.process = 'received';
-            // console.log(state);
-          })
-          .catch((err) => {
-            state.message = err;
-            state.process = 'failed';
-            // console.log(state);
-          });
-      }).catch((error) => {
-        const [{ key }] = error.errors;
-        state.message = key;
-        // state.valid = false;
-        watchedState.process = 'failed';
-      });
-  });
+  runHandlers(watchedState, state, elements);
 
   const updatePosts = () => {
     const { feeds, posts } = state;
@@ -109,9 +73,8 @@ export default () => {
         }
       }));
     Promise.all(promises)
-      .then(() => setTimeout(updatePosts, 5000));
-    console.log(state.posts.length);
+      .then(() => setTimeout(updatePosts, refreshInterval));
   };
 
-  setTimeout(() => updatePosts(), 5000);
+  setTimeout(updatePosts, refreshInterval);
 };
