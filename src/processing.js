@@ -13,4 +13,5 @@ export const getPostState = (feedId, posts) => posts.map((post) => ({
   link: post.link,
   id: _.uniqueId('post_'),
   feedId,
+  visited: false,
 }));
