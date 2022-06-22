@@ -4,13 +4,12 @@ export default {
     posts: 'Посты',
     buttons: {
       view: 'Просмотр',
-      close: 'Закрыть',
-      readCompletely: 'Читать полностью',
     },
     errors: {
       invalidURL: 'Ссылка должна быть валидным URL',
       rssAlreadyAdded: 'RSS уже существует',
       invalidRSS: 'Ресурс не содержит валидный RSS',
+      networkError: 'Ошибка сети. Попробуйте позже',
     },
     success: 'RSS успешно загружен',
   },
