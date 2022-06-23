@@ -41,8 +41,10 @@ export default (watchedState, state, elements) => {
             state.posts = [...state.posts, ...postState];
             watchedState.process = 'received';
           })
-          .catch(() => {
-            state.message = 'networkError';
+          .catch((err) => {
+            state.message = err.message === 'parseError'
+              ? 'parseError'
+              : 'networkError';
             watchedState.process = 'failed';
           });
       }).catch((error) => {
