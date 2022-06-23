@@ -34,6 +34,7 @@ export default () => {
   const elements = {
     field: document.querySelector('#url-input'),
     form: document.querySelector('form'),
+    submit: document.querySelector('[type="submit"]'),
     feedback: document.querySelector('.feedback'),
     containerFeed: document.querySelector('.feeds'),
     containerPosts: document.querySelector('.posts'),
