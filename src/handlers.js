@@ -3,7 +3,7 @@ import { Modal } from 'bootstrap';
 import axios from 'axios';
 import parseRSS from './parser.js';
 import { getFeedState, getPostState } from './processing.js';
-import getProxy from './proxy.js';
+import proxify from './proxy.js';
 
 const validator = (link, feeds) => {
   const urls = feeds.map(({ url }) => url);
@@ -18,7 +18,7 @@ export default (watchedState, state, elements) => {
 
   const {
     form,
-    containerPosts,
+    postsContainer,
     modalClosingButtons,
   } = elements;
 
@@ -30,7 +30,7 @@ export default (watchedState, state, elements) => {
 
     validator(state.currentURL, state.feeds)
       .then(() => {
-        axios.get(getProxy(state.currentURL))
+        axios.get(proxify(state.currentURL))
           .then((response) => {
             const data = parseRSS(response);
             const feedState = getFeedState(state, data.feed);
@@ -85,7 +85,7 @@ export default (watchedState, state, elements) => {
   };
 
   form.addEventListener('submit', handlerForm);
-  containerPosts.addEventListener('click', handlerOpenPreview);
+  postsContainer.addEventListener('click', handlerOpenPreview);
   modalClosingButtons.forEach((button) => {
     button.addEventListener('click', handlerClosePreview);
   });

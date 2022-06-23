@@ -6,12 +6,12 @@ import render from './view.js';
 import ru from './locales/ru.js';
 import parseRSS from './parser.js';
 import { getPostState } from './processing.js';
-import getProxy from './proxy.js';
+import proxify from './proxy.js';
 import runHandlers from './handlers.js';
 
 export default () => {
   const defaultLanguage = 'ru';
-  const refreshInterval = 5000;
+  const updateInterval = 5000;
 
   const i18nInstance = i18n.createInstance();
   i18nInstance.init({
@@ -36,8 +36,8 @@ export default () => {
     form: document.querySelector('form'),
     submit: document.querySelector('[type="submit"]'),
     feedback: document.querySelector('.feedback'),
-    containerFeed: document.querySelector('.feeds'),
-    containerPosts: document.querySelector('.posts'),
+    feedContainer: document.querySelector('.feeds'),
+    postsContainer: document.querySelector('.posts'),
 
     modal: document.querySelector('#modal'),
     modalTitle: document.body.querySelector('.modal-title'),
@@ -62,7 +62,7 @@ export default () => {
 
   const updatePosts = () => {
     const { feeds, posts } = state;
-    const promises = feeds.map((feed) => axios.get(getProxy(feed.url))
+    const promises = feeds.map((feed) => axios.get(proxify(feed.url))
       .then((response) => {
         const data = parseRSS(response);
         const difference = _.differenceBy(data.posts, posts, 'link');
@@ -74,8 +74,8 @@ export default () => {
         }
       }));
     Promise.all(promises)
-      .then(() => setTimeout(updatePosts, refreshInterval));
+      .then(() => setTimeout(updatePosts, updateInterval));
   };
 
-  setTimeout(updatePosts, refreshInterval);
+  setTimeout(updatePosts, updateInterval);
 };

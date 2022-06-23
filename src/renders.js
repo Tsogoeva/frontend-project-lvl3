@@ -82,12 +82,12 @@ export const renderModal = (post, elements) => {
 };
 
 export const renderData = (state, elements, i18nInstance) => {
-  const { containerFeed, containerPosts } = elements;
-  containerFeed.innerHTML = '';
-  containerPosts.innerHTML = '';
+  const { feedContainer, postsContainer } = elements;
+  feedContainer.innerHTML = '';
+  postsContainer.innerHTML = '';
 
   const feedBlock = buildBlock(i18nInstance.t('feeds'));
-  containerFeed.prepend(feedBlock);
+  feedContainer.prepend(feedBlock);
 
   const feedList = feedBlock.querySelector('ul');
   const [currentFeed] = state.feeds.filter((feed) => state.currentFeedId === feed.id);
@@ -95,7 +95,7 @@ export const renderData = (state, elements, i18nInstance) => {
   feedList.prepend(builtFeed);
 
   const postsBlock = buildBlock(i18nInstance.t('posts'));
-  containerPosts.prepend(postsBlock);
+  postsContainer.prepend(postsBlock);
 
   const postsList = postsBlock.querySelector('ul');
   const currentPosts = state.posts.filter((post) => state.currentFeedId === post.feedId);
