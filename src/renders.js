@@ -1,6 +1,3 @@
-const btnIdPrefix = 'btn_';
-const aIdPrefix = 'a_';
-
 const buildBlock = (text) => {
   const card = document.createElement('div');
   card.classList.add('card', 'border-0');
@@ -54,7 +51,7 @@ const makePost = (post, text) => {
   a.setAttribute('href', `${post.link}`);
   a.classList.add(post.visited ? 'fw-normal' : 'fw-bold');
   a.classList.add(post.visited ? 'link-secondary' : 'fw-bold');
-  a.dataset.id = `${aIdPrefix}${post.id}`;
+  a.dataset.id = `a_${post.id}`;
   a.setAttribute('target', '_blank');
   a.setAttribute('rel', 'noopener noreferrer');
   a.textContent = post.title;
@@ -62,7 +59,7 @@ const makePost = (post, text) => {
   const button = document.createElement('button');
   button.setAttribute('type', 'button');
   button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-  button.dataset.id = `${btnIdPrefix}${post.id}`;
+  button.dataset.id = `btn_${post.id}`;
   button.dataset.bsToggle = 'modal';
   button.dataset.bsTarget = '#modal';
   button.textContent = text;
