@@ -26,10 +26,10 @@ export default (watchedState, state, elements) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     state.currentURL = formData.get('url');
+    watchedState.process = 'receiving';
 
     validator(state.currentURL, state.feeds)
       .then(() => {
-      // watchedState.process = 'receiving';
       // state.valid = true;
         axios.get(getProxy(state.currentURL))
           .then((response) => {
