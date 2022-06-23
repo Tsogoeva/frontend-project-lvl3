@@ -1,4 +1,4 @@
-#### RSS Aggregator :rocket:
+## RSS Aggregator :rocket:
 
 ### Hexlet tests and linter status:
 [![Actions Status](https://github.com/Tsogoeva/frontend-project-lvl3/workflows/hexlet-check/badge.svg)](https://github.com/Tsogoeva/frontend-project-lvl3/actions)
@@ -9,8 +9,7 @@
 
 RSS Aggregator allows you to be one of the first to know about the publication of new posts on the site of interest to you.
 
-# Demo:
-(https://frontend-project-lvl3-tsogoeva.vercel.app/)
+#### [Demo](https://frontend-project-lvl3-tsogoeva.vercel.app/)
 
 ### Setup:
 * `make install`
