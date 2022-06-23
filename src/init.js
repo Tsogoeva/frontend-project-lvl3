@@ -6,7 +6,7 @@ import render from './view.js';
 import ru from './locales/ru.js';
 import parseRSS from './parser.js';
 import { getPostState } from './processing.js';
-import getProxy from './proxyOfURL.js';
+import getProxy from './proxy.js';
 import runHandlers from './handlers.js';
 
 export default () => {

@@ -3,7 +3,7 @@ import { Modal } from 'bootstrap';
 import axios from 'axios';
 import parseRSS from './parser.js';
 import { getFeedState, getPostState } from './processing.js';
-import getProxy from './proxyOfURL.js';
+import getProxy from './proxy.js';
 
 const validator = (link, feeds) => {
   const urls = feeds.map(({ url }) => url);
@@ -30,7 +30,6 @@ export default (watchedState, state, elements) => {
 
     validator(state.currentURL, state.feeds)
       .then(() => {
-      // state.valid = true;
         axios.get(getProxy(state.currentURL))
           .then((response) => {
             const data = parseRSS(response);
@@ -40,7 +39,6 @@ export default (watchedState, state, elements) => {
 
             const postState = getPostState(state.currentFeedId, data.posts);
             state.posts = [...state.posts, ...postState];
-
             watchedState.process = 'received';
           })
           .catch(() => {
