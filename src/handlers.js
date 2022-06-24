@@ -68,7 +68,7 @@ export default (watchedState, state, elements) => {
       state.previewPost = currentPost;
       watchedState.process = 'updating';
       watchedState.process = 'preview';
-      watchedState.process = null;
+      // watchedState.process = null;
 
       modal.show();
     }
@@ -78,7 +78,7 @@ export default (watchedState, state, elements) => {
 
       currentPost.visited = true;
       watchedState.process = 'updating';
-      watchedState.process = null;
+      // watchedState.process = null;
     }
   };
 
