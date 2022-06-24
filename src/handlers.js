@@ -13,7 +13,7 @@ const validator = (link, feeds) => {
     .validate(link);
 };
 
-export default (watchedState, state, elements) => {
+export default (view, state, elements) => {
   const modal = new Modal(elements.modal);
 
   const {
@@ -26,7 +26,7 @@ export default (watchedState, state, elements) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     state.currentURL = formData.get('url');
-    watchedState.process = 'receiving';
+    view.process = 'receiving';
 
     validator(state.currentURL, state.feeds)
       .then(() => {
@@ -39,18 +39,18 @@ export default (watchedState, state, elements) => {
 
             const postState = getPostState(state.currentFeedId, data.posts);
             state.posts = [...state.posts, ...postState];
-            watchedState.process = 'received';
+            view.process = 'received';
           })
           .catch((err) => {
             state.message = err.message === 'parseError'
               ? 'parseError'
               : 'networkError';
-            watchedState.process = 'failed';
+            view.process = 'failed';
           });
       }).catch((error) => {
         const [{ key }] = error.errors;
         state.message = key;
-        watchedState.process = 'failed';
+        view.process = 'failed';
       });
   };
 
@@ -66,8 +66,8 @@ export default (watchedState, state, elements) => {
 
       currentPost.visited = true;
       state.previewPost = currentPost;
-      watchedState.process = 'updating';
-      watchedState.process = 'preview';
+      view.process = 'updating';
+      view.process = 'preview';
 
       modal.show();
     }
@@ -76,7 +76,7 @@ export default (watchedState, state, elements) => {
       const currentPost = state.posts.filter(({ id }) => id === postId)[0];
 
       currentPost.visited = true;
-      watchedState.process = 'updating';
+      view.process = 'updating';
     }
   };
 
