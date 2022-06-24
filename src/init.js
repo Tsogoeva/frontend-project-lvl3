@@ -56,9 +56,9 @@ export default () => {
     posts: [],
   };
 
-  const watchedState = render(elements, state, i18nInstance);
+  const view = render(elements, state, i18nInstance);
 
-  runHandlers(watchedState, state, elements);
+  runHandlers(view, state, elements);
 
   const updatePosts = () => {
     const promises = state.feeds.map((feed) => axios.get(proxify(feed.url))
@@ -68,8 +68,8 @@ export default () => {
         if (difference) {
           const newPostState = getPostState(feed.id, difference);
           state.posts = [...newPostState, ...state.posts];
-          watchedState.process = 'updating';
-          watchedState.process = null;
+          view.process = 'updating';
+          view.process = null;
         }
       }));
     Promise.all(promises)
