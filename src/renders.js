@@ -101,6 +101,6 @@ export const renderData = (state, elements, i18nInstance) => {
   const currentPosts = state.posts.filter((post) => state.currentFeedId === post.feedId);
   currentPosts.forEach((post) => {
     const builtPost = makePost(post, i18nInstance.t('buttons.view'));
-    postsList.prepend(builtPost);
+    postsList.append(builtPost);
   });
 };

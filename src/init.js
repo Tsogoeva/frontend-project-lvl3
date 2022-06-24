@@ -61,14 +61,13 @@ export default () => {
   runHandlers(watchedState, state, elements);
 
   const updatePosts = () => {
-    const { feeds, posts } = state;
-    const promises = feeds.map((feed) => axios.get(proxify(feed.url))
+    const promises = state.feeds.map((feed) => axios.get(proxify(feed.url))
       .then((response) => {
         const data = parseRSS(response);
-        const difference = _.differenceBy(data.posts, posts, 'link');
+        const difference = _.differenceBy(data.posts, state.posts, 'link');
         if (difference) {
           const newPostState = getPostState(feed.id, difference);
-          state.posts = [...posts, ...newPostState];
+          state.posts = [...newPostState, ...state.posts];
           watchedState.process = 'updating';
           watchedState.process = null;
         }
