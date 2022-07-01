@@ -3,7 +3,7 @@ import * as yup from 'yup';
 import render from './view.js';
 import ru from './locales/ru.js';
 import { eventHandlers } from './handlers.js';
-import { updatePosts } from './updating.js';
+import { updateInterval, updatePosts } from './updating.js';
 
 export default () => {
   const defaultLanguage = 'ru';
@@ -54,5 +54,5 @@ export default () => {
   const view = render(elements, state, i18nInstance);
 
   eventHandlers(view, state, elements);
-  updatePosts(view, state);
+  setTimeout(() => updatePosts(view, state), updateInterval);
 };
