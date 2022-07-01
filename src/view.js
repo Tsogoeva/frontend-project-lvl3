@@ -11,11 +11,16 @@ export default (elements, state, i18nInstance) => onChange(state, (_path, value)
 
   switch (value) {
     case 'receiving':
-      submit.disabled = true;
+      submit.setAttribute('disabled', '');
+      field.setAttribute('readonly', '');
+      feedback.textContent = i18nInstance.t('loading');
+      feedback.classList.remove('text-danger');
+      feedback.classList.add('text-success');
       break;
 
     case 'failed':
-      submit.disabled = false;
+      submit.removeAttribute('disabled');
+      field.removeAttribute('readonly');
       field.classList.add('is-invalid');
       feedback.textContent = i18nInstance.t(`errors.${state.message}`);
       feedback.classList.remove('text-success');
@@ -23,7 +28,8 @@ export default (elements, state, i18nInstance) => onChange(state, (_path, value)
       break;
 
     case 'received':
-      submit.disabled = false;
+      submit.removeAttribute('disabled');
+      field.removeAttribute('readonly');
       field.classList.remove('is-invalid');
       feedback.textContent = i18nInstance.t('success');
       feedback.classList.remove('text-danger');
@@ -34,6 +40,10 @@ export default (elements, state, i18nInstance) => onChange(state, (_path, value)
       break;
 
     case 'updating':
+      field.classList.remove('is-invalid');
+      feedback.textContent = i18nInstance.t('success');
+      feedback.classList.remove('text-danger');
+      feedback.classList.add('text-success');
       renderData(state, elements, i18nInstance);
       break;
 
