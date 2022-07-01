@@ -13,7 +13,27 @@ const validator = (link, feeds) => {
     .validate(link);
 };
 
-export default (view, state, elements) => {
+export const errorHandler = (error, state) => {
+  switch (error) {
+    case 'Network Error':
+      state.message = 'networkError';
+      break;
+    case 'Parser Error':
+      state.message = 'parseError';
+      break;
+    case 'URL is invalid':
+      state.message = 'invalidURL';
+      break;
+    case 'RSS already added':
+      state.message = 'rssExist';
+      break;
+    default:
+      state.message = 'unknownError';
+      break;
+  }
+};
+
+export const eventHandlers = (view, state, elements) => {
   const modal = new Modal(elements.modal);
 
   const {
@@ -26,31 +46,26 @@ export default (view, state, elements) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     state.currentURL = formData.get('url');
-    view.process = 'receiving';
 
     validator(state.currentURL, state.feeds)
       .then(() => {
-        axios.get(proxify(state.currentURL))
-          .then((response) => {
-            const data = parseRSS(response);
-            const feedState = getFeedState(state, data.feed);
-            state.currentFeedId = feedState.id;
-            state.feeds.push(feedState);
+        view.process = 'receiving';
+        return axios.get(proxify(state.currentURL));
+      })
+      .then((response) => {
+        const data = parseRSS(response);
+        const feedState = getFeedState(state, data.feed);
+        state.currentFeedId = feedState.id;
+        state.feeds.push(feedState);
 
-            const postState = getPostState(state.currentFeedId, data.posts);
-            state.posts = [...state.posts, ...postState];
-            view.process = 'received';
-          })
-          .catch((err) => {
-            state.message = err.message === 'parseError'
-              ? 'parseError'
-              : 'networkError';
-            view.process = 'failed';
-          });
-      }).catch((error) => {
-        const [{ key }] = error.errors;
-        state.message = key;
+        const postState = getPostState(state.currentFeedId, data.posts);
+        state.posts = [...state.posts, ...postState];
+        view.process = 'received';
+      })
+      .catch((error) => {
+        errorHandler(error.message, state);
         view.process = 'failed';
+        view.process = null;
       });
   };
 
