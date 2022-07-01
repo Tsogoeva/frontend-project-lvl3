@@ -1,32 +1,27 @@
 import i18n from 'i18next';
 import * as yup from 'yup';
-import _ from 'lodash';
-import axios from 'axios';
 import render from './view.js';
 import ru from './locales/ru.js';
-import parseRSS from './parser.js';
-import { getPostState } from './processing.js';
-import proxify from './proxy.js';
-import runHandlers from './handlers.js';
+import { eventHandlers } from './handlers.js';
+import { updatePosts } from './updating.js';
 
 export default () => {
   const defaultLanguage = 'ru';
-  const updateInterval = 5000;
 
   const i18nInstance = i18n.createInstance();
   i18nInstance.init({
     lng: defaultLanguage,
-    debug: true,
+    debug: false,
     resources: {
       ru,
     },
   }).then(() => {
     yup.setLocale({
       string: {
-        url: () => ({ key: 'invalidURL' }),
+        url: 'URL is invalid',
       },
       mixed: {
-        notOneOf: () => ({ key: 'rssAlreadyAdded' }),
+        notOneOf: 'RSS already added',
       },
     });
   });
@@ -58,23 +53,6 @@ export default () => {
 
   const view = render(elements, state, i18nInstance);
 
-  runHandlers(view, state, elements);
-
-  const updatePosts = () => {
-    const promises = state.feeds.map((feed) => axios.get(proxify(feed.url))
-      .then((response) => {
-        const data = parseRSS(response);
-        const difference = _.differenceBy(data.posts, state.posts, 'link');
-        if (difference) {
-          const newPostState = getPostState(feed.id, difference);
-          state.posts = [...newPostState, ...state.posts];
-          view.process = 'updating';
-          view.process = null;
-        }
-      }));
-    Promise.all(promises)
-      .then(() => setTimeout(updatePosts, updateInterval));
-  };
-
-  setTimeout(updatePosts, updateInterval);
+  eventHandlers(view, state, elements);
+  updatePosts(view, state);
 };
