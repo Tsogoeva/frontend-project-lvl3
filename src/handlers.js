@@ -46,12 +46,10 @@ export const eventHandlers = (view, state, elements) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     state.currentURL = formData.get('url');
+    view.process = 'receiving';
 
     validator(state.currentURL, state.feeds)
-      .then(() => {
-        view.process = 'receiving';
-        return axios.get(proxify(state.currentURL));
-      })
+      .then(() => axios.get(proxify(state.currentURL)))
       .then((response) => {
         const data = parseRSS(response);
         const feedState = getFeedState(state, data.feed);
