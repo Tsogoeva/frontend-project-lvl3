@@ -4,7 +4,9 @@ export default (response) => {
 
   const parserError = doc.querySelector('parsererror');
   if (parserError) {
-    throw new Error('Parser Error');
+    const error = new Error();
+    error.isParserError = true;
+    throw error;
   }
 
   const title = doc.querySelector('title').textContent;
