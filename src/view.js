@@ -100,17 +100,17 @@ const renderData = (state, elements, i18nInstance) => {
   const feedBlock = buildBlock(i18nInstance.t('feeds'));
   feedContainer.prepend(feedBlock);
 
-  const feedList = feedBlock.querySelector('ul');
-  const [currentFeed] = state.feeds.filter((feed) => state.currentFeedId === feed.id);
-  const builtFeed = makeFeed(currentFeed);
-  feedList.prepend(builtFeed);
+  const feedList = feedContainer.querySelector('ul');
+  state.feeds.forEach((feed) => {
+    const builtFeed = makeFeed(feed);
+    feedList.prepend(builtFeed);
+  });
 
   const postsBlock = buildBlock(i18nInstance.t('posts'));
   postsContainer.prepend(postsBlock);
 
-  const postsList = postsBlock.querySelector('ul');
-  const currentPosts = state.posts.filter((post) => state.currentFeedId === post.feedId);
-  currentPosts.forEach((post) => {
+  const postsList = postsContainer.querySelector('ul');
+  state.posts.forEach((post) => {
     const builtPost = makePost(post, i18nInstance.t('buttons.view'));
     postsList.append(builtPost);
   });
