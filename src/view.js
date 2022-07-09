@@ -94,6 +94,7 @@ const renderModal = (post, elements) => {
 
 const renderData = (state, elements, i18nInstance) => {
   const { feedContainer, postsContainer } = elements;
+
   feedContainer.innerHTML = '';
   postsContainer.innerHTML = '';
 
