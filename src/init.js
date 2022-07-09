@@ -78,7 +78,7 @@ const eventHandlers = (view, state, elements) => {
         state.feeds.push(feedState);
 
         const postState = getPostState(state.currentFeedId, data.posts);
-        state.posts = [...state.posts, ...postState];
+        state.posts = [...postState, ...state.posts];
         view.process = 'received';
       })
       .catch((error) => {
@@ -138,6 +138,7 @@ const updatePosts = (view, state) => {
         const newPostState = getPostState(feed.id, difference);
         state.posts = [...newPostState, ...state.posts];
         view.process = 'updating';
+        view.process = null;
       }
     }));
   Promise
