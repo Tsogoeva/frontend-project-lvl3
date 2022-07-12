@@ -117,7 +117,7 @@ const renderData = (state, elements, i18nInstance) => {
   });
 };
 
-export default (elements, state, i18nInstance) => onChange(state, (_path, value) => {
+export default (elements, state, i18nInstance) => onChange(state, (path, value) => {
   const {
     feedback,
     field,
@@ -125,37 +125,8 @@ export default (elements, state, i18nInstance) => onChange(state, (_path, value)
     submit,
   } = elements;
 
-  switch (value) {
-    case 'receiving':
-      submit.setAttribute('disabled', '');
-      field.setAttribute('readonly', '');
-      feedback.textContent = i18nInstance.t('loading');
-      feedback.classList.remove('text-danger');
-      feedback.classList.remove('text-success');
-      break;
-
-    case 'failed':
-      submit.removeAttribute('disabled');
-      field.removeAttribute('readonly');
-      field.classList.add('is-invalid');
-      feedback.textContent = i18nInstance.t(`errors.${state.message}`);
-      feedback.classList.remove('text-success');
-      feedback.classList.add('text-danger');
-      break;
-
-    case 'received':
-      submit.removeAttribute('disabled');
-      field.removeAttribute('readonly');
-      field.classList.remove('is-invalid');
-      feedback.textContent = i18nInstance.t('success');
-      feedback.classList.remove('text-danger');
-      feedback.classList.add('text-success');
-      form.reset();
-      field.focus();
-      renderData(state, elements, i18nInstance);
-      break;
-
-    case 'updating':
+  switch (path) {
+    case 'posts':
       if (state.message === 'networkError') {
         field.classList.remove('is-invalid');
         feedback.textContent = i18nInstance.t('success');
@@ -166,18 +137,51 @@ export default (elements, state, i18nInstance) => onChange(state, (_path, value)
       renderVisitedPost(state.visitedPosts, elements);
       break;
 
-    case 'visited post':
+    case 'visitedPosts':
       renderVisitedPost(state.visitedPosts, elements);
       break;
 
-    case 'preview':
+    case 'previewPost':
       renderModal(state.previewPost, elements);
       break;
 
-    case null:
+    case 'process':
+      switch (value) {
+        case 'receiving':
+          submit.setAttribute('disabled', '');
+          field.setAttribute('readonly', '');
+          feedback.textContent = i18nInstance.t('loading');
+          feedback.classList.remove('text-danger');
+          feedback.classList.remove('text-success');
+          break;
+
+        case 'failed':
+          submit.removeAttribute('disabled');
+          field.removeAttribute('readonly');
+          field.classList.add('is-invalid');
+          feedback.textContent = i18nInstance.t(`errors.${state.message}`);
+          feedback.classList.remove('text-success');
+          feedback.classList.add('text-danger');
+          break;
+
+        case 'received':
+          submit.removeAttribute('disabled');
+          field.removeAttribute('readonly');
+          field.classList.remove('is-invalid');
+          feedback.textContent = i18nInstance.t('success');
+          feedback.classList.remove('text-danger');
+          feedback.classList.add('text-success');
+          form.reset();
+          field.focus();
+          renderData(state, elements, i18nInstance);
+          break;
+
+        default:
+          throw new Error(`Unknown process: ${value}`);
+      }
       break;
 
     default:
-      throw new Error(`Unknown process: ${value}`);
+      throw new Error(`Unknown path: ${value}`);
   }
 });
