@@ -84,7 +84,6 @@ const eventHandlers = (view, state, elements) => {
       .catch((error) => {
         errorHandler(error, state);
         view.process = 'failed';
-        view.process = null;
       });
   };
 
@@ -95,8 +94,7 @@ const eventHandlers = (view, state, elements) => {
       const postId = targetId.substring(prefix.length, targetId.length);
       const post = state.posts.find(({ id }) => id === postId);
 
-      state.visitedPosts.add(post);
-      view.process = 'visited post';
+      view.visitedPosts.add(post);
 
       return post;
     };
@@ -106,8 +104,7 @@ const eventHandlers = (view, state, elements) => {
 
     if (currentId && currentId.match(/btn_post_\d+$/)) {
       const currentPost = getPostId(btnIdPrefix, currentId);
-      state.previewPost = currentPost;
-      view.process = 'preview';
+      view.previewPost = currentPost;
       modal.show();
     }
 
@@ -136,9 +133,7 @@ const updatePosts = (view, state) => {
       const difference = _.differenceBy(parseData.posts, state.posts, 'link');
       if (difference) {
         const newPostState = getPostState(feed.id, difference);
-        state.posts = [...newPostState, ...state.posts];
-        view.process = 'updating';
-        view.process = null;
+        view.posts = [...newPostState, ...state.posts];
       }
     }));
   Promise
@@ -146,7 +141,6 @@ const updatePosts = (view, state) => {
     .catch((error) => {
       errorHandler(error, state);
       view.process = 'failed';
-      view.process = null;
     })
     .finally(() => setTimeout(() => updatePosts(view, state), updateInterval));
 };
@@ -188,7 +182,7 @@ export default () => {
   };
 
   const state = {
-    process: null, // receiving, received, updating, failed, preview, visited post
+    process: '', // receiving, received, failed
     message: '',
     currentURL: '',
     currentFeedId: 0,
