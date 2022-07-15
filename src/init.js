@@ -1,6 +1,5 @@
 import i18n from 'i18next';
 import axios from 'axios';
-import { Modal } from 'bootstrap';
 import * as yup from 'yup';
 import _ from 'lodash';
 import render from './view.js';
@@ -55,12 +54,9 @@ const getPostState = (feedId, posts) => posts.map((post) => ({
 }));
 
 const eventHandlers = (view, state, elements) => {
-  const modal = new Modal(elements.modal);
-
   const {
     form,
     postsContainer,
-    modalClosingButtons,
   } = elements;
 
   const handlerForm = (e) => {
@@ -88,15 +84,11 @@ const eventHandlers = (view, state, elements) => {
   };
 
   const handlerVisitedPosts = (e) => {
-    const currentId = e.target.dataset?.id;
+    const currentId = e.target.dataset.id;
 
     const getPostId = (prefix, targetId) => {
       const postId = targetId.substring(prefix.length, targetId.length);
-      const post = state.posts.find(({ id }) => id === postId);
-
-      view.visitedPosts.add(post);
-
-      return post;
+      return state.posts.find(({ id }) => id === postId);
     };
 
     const btnIdPrefix = 'btn_';
@@ -104,24 +96,18 @@ const eventHandlers = (view, state, elements) => {
 
     if (currentId && currentId.match(/btn_post_\d+$/)) {
       const currentPost = getPostId(btnIdPrefix, currentId);
+      view.visitedPosts.add(currentPost);
       view.previewPost = currentPost;
-      modal.show();
     }
 
     if (currentId && currentId.match(/a_post_\d+$/)) {
-      getPostId(aIdPrefix, currentId);
+      const currentPost = getPostId(aIdPrefix, currentId);
+      view.visitedPosts.add(currentPost);
     }
-  };
-
-  const handlerClosePreview = () => {
-    modal.hide();
   };
 
   form.addEventListener('submit', handlerForm);
   postsContainer.addEventListener('click', handlerVisitedPosts);
-  modalClosingButtons.forEach((button) => {
-    button.addEventListener('click', handlerClosePreview);
-  });
 };
 
 const updatePosts = (view, state) => {
@@ -139,8 +125,7 @@ const updatePosts = (view, state) => {
   Promise
     .all(promises)
     .catch((error) => {
-      errorHandler(error, state);
-      view.process = 'failed';
+      throw new Error(error.message);
     })
     .finally(() => setTimeout(() => updatePosts(view, state), updateInterval));
 };
@@ -174,11 +159,9 @@ export default () => {
     feedContainer: document.querySelector('.feeds'),
     postsContainer: document.querySelector('.posts'),
 
-    modal: document.querySelector('#modal'),
     modalTitle: document.body.querySelector('.modal-title'),
     modalDescription: document.body.querySelector('.modal-body'),
     modalLink: document.body.querySelector('.modal-footer > a'),
-    modalClosingButtons: document.querySelectorAll('[data-bs-dismiss="modal"]'),
   };
 
   const state = {
