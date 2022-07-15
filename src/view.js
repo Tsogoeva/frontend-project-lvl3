@@ -127,12 +127,6 @@ export default (elements, state, i18nInstance) => onChange(state, (path, value) 
 
   switch (path) {
     case 'posts':
-      if (state.message === 'networkError') {
-        field.classList.remove('is-invalid');
-        feedback.textContent = i18nInstance.t('success');
-        feedback.classList.remove('text-danger');
-        feedback.classList.add('text-success');
-      }
       renderData(state, elements, i18nInstance);
       renderVisitedPost(state.visitedPosts, elements);
       break;
